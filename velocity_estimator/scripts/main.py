@@ -2,15 +2,33 @@
 import rospy
 from sensor_msgs.msg import LaserScan
 
-class LScan():
+class LScan:
     def __init__(self):
         self.rospy=rospy
-        self.change=False
-        self.rate = self.rospy.Rate(100)
-        self.value=0
         self.rospy.init_node('listener',anonymous=True)
-        self.rospy.Subscriber("~scan_legs","/scan",LaserScan,self.getlaser)
+        self.rospy.loginfo("Starting Leg Laser")
+        # self.initParameters()
+        self.initSubscribers()
+        self.change=False
         self.run()
+    
+    # def initParameters(self):
+	# 	self.legLaserTopic = self.rospy.get_param("~legLaser_topic","/scan")
+	# 	return
+    def initSubscribers(self):
+        self.subPose = self.rospy.Subscriber("/scan", LaserScan, self.getlaser)
+        return
+    def initvariables(self):
+        self.rate = self.rospy.Rate(100)
+        self.angle_min = 0
+        self.angle_max = 0
+        self.scan_time = 0
+        self.ranges = 0
+        self.angle_increment = 0
+        self.time_increment = 0
+        self.range_min = 0
+        self.range_max = 0
+        self.change = False
 
     def getlaser(self,msg):
         self.angle_min = msg.angle_min
@@ -27,12 +45,12 @@ class LScan():
         while not self.rospy.is_shutdown():
             self.msg=LaserScan()
             if(self.change):
-                print(self.ranges)
+                print(len(self.ranges))
                 self.change=False
         self.rate.sleep()
 
 if __name__ == '__main__':
     try:
-        LS=LScan()
+        LScan = LScan()
     except rospy.ROSInterruptException:
         pass
